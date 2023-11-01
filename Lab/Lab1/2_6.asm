@@ -1,43 +1,44 @@
-    .data
-prompt: .asciiz "Enter a decimal number: "
-buffer: .space 32
-
-    .text
-    .globl main
+.data
+	prompt: .asciiz "Enter a 10 bit binary number: "
+	res: .word 0
+	ans: .asciiz "Answer: " 
+.text
+.globl main
 main:
-    # Print prompt
-    la $a0, prompt
-    li $v0, 4
-    syscall
+	li $v0, 4
+	la $a0, prompt
+	syscall
+	li $v0, 5
+	syscall
+	move $t0, $v0
 
-    # Read integer
-    li $v0, 5
-    syscall
+	li $t1, 1
+	li $t4, 0
+	li $t2, 0
+	li $t5, 10
 
-    # Store number in $t0
-    move $t0, $v0
+loop:
+	bge $t2 , 10 , exit
 
-    # Print 10-bit binary representation
-    li $t1, 9  # counter for 10 bits
-print_loop:
-    # Shift right by counter
-    srlv $t2, $t0, $t1
+	div $t0, $t5
+	mflo $t0
+	mfhi $t3
 
-    # Isolate bit
-    andi $t2, $t2, 1
+	addi $t2, $t2, 1
+	sll $t1,$t1,1
 
-    # Print bit
-    add $a0, $t2, '0'
-    li $v0, 11
-    syscall
-
-    # Decrement counter
-    sub $t1, $t1, 1
-
-    # Repeat for all bits
-    bgez $t1, print_loop
+	beqz $t3 else
+	add $t4, $t4, $t1
+	else:
+	j loop
 
 exit:
-    # Exit program
-    li $v0, 10
-    syscall
+	sw $t1, res
+	li $v0, 4
+	la $a0, ans
+	syscall
+	li $v0, 1
+	lw $a0, res
+	syscall
+	li $v0, 10
+	syscall
