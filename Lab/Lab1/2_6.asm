@@ -15,25 +15,23 @@ main:
 	li $t1, 1
 	li $t4, 0
 	li $t2, 0
-	li $t5, 10
+	li $t5 , 10
 
 loop:
-	bge $t2 , 10 , exit
-
+	bge $t2, 10,exit
+	
 	div $t0, $t5
 	mflo $t0
 	mfhi $t3
-
-	addi $t2, $t2, 1
-	sll $t1,$t1,1
-
 	beqz $t3 else
-	add $t4, $t4, $t1
+	add $t4,$t4,$t1
 	else:
+	sll $t1, $t1, 1
+	addi $t2,$t2, 1
 	j loop
 
 exit:
-	sw $t1, res
+	sw $t4, res
 	li $v0, 4
 	la $a0, ans
 	syscall
