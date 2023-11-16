@@ -31,7 +31,7 @@ check_loop:
 		
 	lw $t2, 0($t3)
 	rem $t4,$t2,4
-	beqz $t4 check_loop
+	beqz $t4 checkloop
 	blt $t4,3,sub
 	bgt $t4,2,add	
 add:
