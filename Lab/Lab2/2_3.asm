@@ -23,25 +23,19 @@ inputloop:
 check:
 	la $s1, arr
 	la $s0, 0
-	li $s2, 2
+	li $s2, 4
 check_loop:
 	sll $t1, $s0, 2
 	add $t3, $t1, $s1
 	addi $s0,$s0,1
-		
+	
 	lw $t2, 0($t3)
-	rem $t4,$t2,4
-	beqz $t4 check_loop
-	blt $t4,3,sub
-	bgt $t4,2,add	
-add:
-	subi $t4,$t2,2
-	add $t2,$t2,$t4
-	sw $t2, 0($t3)
-	beq $s0 ,7,print
-sub:
+	rem $t4,$t2,$s2
+	bnez $t4, handle 
+	beq $s0, 8, print
+	j check_loop
+handle:
 	sub $t2, $t2, $t4
-	beq $s0,7,print
 	sw $t2, 0($t3)
 	j check_loop
 print:
