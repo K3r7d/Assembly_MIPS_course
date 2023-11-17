@@ -30,13 +30,21 @@ check_loop:
 	addi $s0,$s0,1
 	
 	lw $t2, 0($t3)
+	ble $t2, 3, lessthan4
 	rem $t4,$t2,$s2
 	bnez $t4, handle 
+	beq $s0, 8, print
+	j check_loop
+	
+lessthan4:
+	addi $t2,$zero,4
+	sw $t2, 0($t3)
 	beq $s0, 8, print
 	j check_loop
 handle:
 	sub $t2, $t2, $t4
 	sw $t2, 0($t3)
+	beq $s0, 8, print
 	j check_loop
 print:
 	la $s1,arr
