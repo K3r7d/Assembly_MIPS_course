@@ -9,7 +9,14 @@
 	choose: .asciiz "Choose: "
 	Welcome:.asciiz "-----------------WELCOME TO BATTLESHIP GAME-------------------------"
 	newline: .asciiz "\n"
-	input:.asciiz"Please input your map"
+	
+	
+	
+	
+	
+	
+	
+	
 .text
 	li $v0, 4
 	la $a0, cmt
@@ -69,11 +76,11 @@ play:
 
 
 .data
+	InputRule:.asciiz "Welcome to BATTLESHIP GAME. \n Now, each player have to input their boat by the syntax"
+	
 	player1_input:.asciiz"Player 1: "
 	player2_input:.asciiz"Player 2: "
 	
-	player1: .space 49
-	player2: .space 49
 .text
 
 
@@ -104,7 +111,6 @@ player_setup:
 
 
 
-j $ra
 #-------------------------------#
 
 
