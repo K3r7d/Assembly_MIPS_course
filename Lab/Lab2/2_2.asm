@@ -14,127 +14,119 @@ nl: .asciiz "\n"
 
 inputLoop:
 
-la $a0, msg1    #load msg1 to a0
-li $v0, 4	#print string
+la $a0, msg1
+li $v0, 4
 syscall 
 
-li $v0, 5	#input first number
+li $v0, 5
 syscall 
 move $s0, $v0
 
-slti $t0, $s0, 256	#set t0=1 if n1 < 256
+slti $t0, $s0, 256
 beq $t0, $zero, invalid
 
-la $a0, msg2    #load msg2 to a0
-li $v0, 4	#print string
+la $a0, msg2
+li $v0, 4
 syscall 
 
-li $v0, 5	#input second number
+li $v0, 5
 syscall 
 move $s1, $v0
 
-slti $t0, $s1, 256	#set t0=1 if n2 < 256
+slti $t0, $s1, 256
 beq $t0, $zero, invalid
 
-beq $s0, $zero, zerovalid	#check if n1 is zero
+beq $s0, $zero, zerovalid
 
 j inputEnd
 
-zerovalid:	#if n1 is zero, check if n2 is zero
+zerovalid:
 beq $s1, $zero, invalid
 j inputEnd
 
 invalid:
-la $a0, msg3    #load msg3 to a0
-li $v0, 4	#print string
+la $a0, msg3
+li $v0, 4
 syscall 
 
-la $a0, nl	#load nl to a0
-li $v0, 4	#print string
+la $a0, nl
+li $v0, 4
 syscall
 j inputLoop
 
 inputEnd:
 
-la $a0, msg4   #load msg4 to a0
-li $v0, 4	#print string
+la $a0, msg4
+li $v0, 4
 syscall 
 
-add $a0, $s0, $zero	#store n1 in first argument
-add $a1, $s1, $zero	#store n2 in second argument
+add $a0, $s0, $zero
+add $a1, $s1, $zero
 jal gcd 
 add $t0, $v0, $zero
 
-move $a0, $t0	#move t0 to a0
-li $v0, 1	#print int
+move $a0, $t0
+li $v0, 1
 syscall 
 
-la $a0, nl  #load nl to a0
-li $v0, 4	#print string
+la $a0, nl
+li $v0, 4
 syscall 
 
-la $a0, msg5   #load msg5 to a0
-li $v0, 4	#print string
+la $a0, msg5
+li $v0, 4
 syscall 
 
-add $a0, $s0, $zero	#store n1 in first argument
-add $a1, $s1, $zero	#store n2 in second argument
+add $a0, $s0, $zero
+add $a1, $s1, $zero
 jal lcm 
 add $t0, $v0, $zero
 
-move $a0, $t0	#move t0 to a0
-li $v0, 1	#print 	int
+move $a0, $t0
+li $v0, 1
 syscall 
 
-addi $v0, $zero, 10     # exit program on syscall
-syscall                 # exit program
+addi $v0, $zero, 10
+syscall                 
 
-
-
-
-#greatest common divisor function*********************************************************
 gcd:
-add $t0, $a0, $zero	#set t0 and t1 to arguments
+add $t0, $a0, $zero
 add $t1, $a1, $zero
 
-beq $t1, $zero, n2zero	#if n2==0
+beq $t1, $zero, n2zero
 
-add $t2, $t1, $zero	#else recursive step
-div $t0, $t1		#modulus step
+add $t2, $t1, $zero
+div $t0, $t1
 mfhi $a1
-move $a0, $t2		#make result and argument
+move $a0, $t2
 j gcd
 
-return:		#return to main
+return:
 jr $ra
 
-n2zero:		#if n2 == 0, set return value
+n2zero:
 move $v0, $t0
 j return
 
-#least common multiplier**********************************************************************
-
 lcm:
-addi $sp, $sp, -4	#create stack 
-sw $ra, 0($sp)		#store lcm return
+addi $sp, $sp, -4
+sw $ra, 0($sp)
 
-add $t6, $a0, $zero	#save arguments
+add $t6, $a0, $zero
 add $t7, $a1, $zero
 
-add $a0, $t6, $zero	#store n1 in first argument for gcd
-add $a1, $t7, $zero	#store n2 in second argument for gcd
+add $a0, $t6, $zero
+add $a1, $t7, $zero
 jal gcd 
 add $t0, $v0, $zero
 
-mult $t6, $t7		#multiply n1 and n2
+mult $t6, $t7
 mflo $t4
 
-div $t4, $t0		#final division
+div $t4, $t0
 mflo $v0
 
-lw $ra, 0($sp)		#reload $ra
-addi $sp, $sp, 4	#deallocate stack
+lw $ra, 0($sp)
+addi $sp, $sp, 4
 
-jr $ra			#return to lcm call
-
-
+jr $ra

@@ -5,12 +5,12 @@
 #-------------------------------------------------------------------------------------------#
 .data
 	    cmt:.asciiz "--------------------------------------------------------------------"
-	    Menu:.asciiz"             1.Play                      2.Exit"
+	    Menu:.asciiz"                1.Play                      2.Exit"
 	choose: .asciiz "Choose: "
-	Welcome:.asciiz "-----------------WELCOME TO BATTLESHIP GAME-------------------------"
-	newline: .asciiz "\n"
+	Welcome:.asciiz "-------------------WELCOME TO BATTLESHIP GAME-----------------------"
+	newline: .asciiz"\n"
 	
-	
+  invalid_input:.asciiz "Invalid input, please input again\n"
 	
 	
 	
@@ -18,6 +18,8 @@
 	
 	
 .text
+
+menu__:
 	li $v0, 4
 	la $a0, cmt
 	syscall
@@ -41,7 +43,7 @@
 	li $v0, 4
 	la $a0, newline
 	syscall
-	
+Choose___:	
 	li $v0, 4
 	la $a0, Menu
 	syscall
@@ -61,6 +63,11 @@
 	beq $t0, 1, play
 	beq $t0, 2, exit
 	
+	li $v0, 4
+	la $a0, invalid_input
+	syscall
+	
+	j Choose___
 #-------------------------------------------------------------------------------------------#
 #-------------------------------------------------------------------------------------------#
 #-------------------------------------------------------------------------------------------#
@@ -76,37 +83,68 @@ play:
 
 
 .data
-	InputRule:.asciiz "Welcome to BATTLESHIP GAME. \n Now, each player have to input their boat by the syntax"
+	InputRule:.asciiz "Welcome to BATTLESHIP GAME.\nNow, each player have to input their boat by the syntax below\n\"Row_Boat Column_Boat Row_stern Column_stern\"\nExample:\"1 4 2 4\""
 	
-	player1_input:.asciiz"Player 1: "
-	player2_input:.asciiz"Player 2: "
+	player1_input:.asciiz"Player 1 Turn\n"
+	player2_input:.asciiz"Player 2 Turn\n"
+	
+	EnterToContinue: .asciiz "Enter to Continue...\n"
+	NumberofShipsPrompt: .asciiz "You will have 3 2x1, 2 3x1 and 1 4x1 ships\n"
+	
+	
+	
 	
 .text
+#--------------RULE-------------#
+	li $v0, 4
+	la $a0, cmt
+	syscall
+	
+	li $v0, 4
+	la $a0, newline
+	syscall
+	
+	li $v0 ,4
+	la $a0, InputRule
+	syscall
+	
+	li $v0, 4
+	la $a0, newline
+	syscall
+	
+	
+	
+	li $v0, 4
+	la $a0, NumberofShipsPrompt
+	syscall
+	
+	li $v0, 4
+	la $a0, EnterToContinue
+	syscall
+	
+	li $v0, 4
+	la $a0, cmt
+	syscall
+	
+	li $v0, 4
+	la $a0, newline
+	syscall
+	
+	li $v0, 8
+	syscall
+	
+#-------------------------------#
 
 
 #-------------INPUT-------------#
-	#player 1 input 49 numbers 1 or 0
-	li $v0, 4
-	la $a0, player1_input
-	syscall
-	li $v0, 8
-	syscall
-	move $t0, $v0
-	jal player_setup
 	
-	#player 2 input 49 numbers 1 or 0
-	li $v0, 4
-	la $a0, player2_input
-	syscall
-	li $v0, 8
-	syscall
-	move $t1, $v0
-	jal player_setup
+	
+	
 #-------------------------------#
 
 
 #------------SETUP--------------#
-player_setup:
+
 
 
 
