@@ -11,15 +11,13 @@
 	newline: .asciiz"\n"
 	
   invalid_input:.asciiz "Invalid input, please input again\n"
-	
-	
-	
-	
-	
+		
 	
 .text
 
 menu__:
+	
+
 	li $v0, 4
 	la $a0, cmt
 	syscall
@@ -101,12 +99,18 @@ play:
 	
 	#____MAP____#
 	MAP: .word 0:49
-	
-	
+	MAP2: .word 0:49
 	
 	#NOTE
 	#s0 is use for MAP
 	#t8: Size of Ship
+	
+	#Gameloop
+	
+	GameStart_msg: .asciiz "-----------------------------GAME-START-----------------------------\n"
+	P1_win: .asciiz "Player 1 win!!!"
+	P2_win: .asciiz "Player 2 win!!!"
+	
 	
 .text
 
@@ -152,20 +156,27 @@ play:
 	li $v0, 8
 	syscall
 	
+	j Player1_Input # JUMP TO PLAYER INPUT
+	
 #-------------------------------#
 
 #-------------------------------#
 
 #--------------MAP--------------#
-la $s0, MAP	#j
 
-j Player1_Input
+
 
 
 #element access
 #ADRESS = base +(Row * n + Column)* 4
-
+#SHIP UPDATE MAP FUCNTION
 Ship_Update:
+	#load player map
+	beq $t9,1, load_player1
+	la $s0, MAP2
+	load_player1:
+	la $s0, MAP
+
 	#split string
 	lb $t1, 0($a0) 
 	subi $t1, $t1, '0'
@@ -199,19 +210,25 @@ Ship_Update:
 	
 	#size check
 	
-	beqz $t5, check_24
-	bge $t1, $t3,sub__
-	sub $s1, $t3, $t1
-	sub__:
-	sub $s1,$t1,$t3
+	beqz $t5, check_13
+	bge $t2, $t4,sub_
+	sub $s1, $t4, $t2
+	j sc_cont1
+	sub_:
+	sub $s1,$t2,$t4
+	sc_cont1:
+	addi $s1, $s1, 1
 	bne $s1, $t8, error
 	j initial_i_j
 	
-	check_24:
-	bge $t2, $t4,sub__
-	sub $s1, $t4, $t2
+	check_13:
+	bge $t1, $t3,sub__
+	sub $s1, $t3, $t1
+	j sc_cont2
 	sub__:
-	sub $s1,$t2,$t4
+	sub $s1,$t1,$t3
+	sc_cont2:
+	addi $s1, $s1, 1
 	bne $s1, $t8, error
 	
 	#update to map
@@ -275,7 +292,7 @@ error:
 #-------------INPUT-------------#
 	
 Player1_Input:
-	li $a3, 1	#set the player
+	li $t9, 1	#set the player
 	
 	li $v0, 4
 	la $a0, player1_input
@@ -308,7 +325,7 @@ Player1_Input:
 	jal Ship_Update
 	
 
-	li $v0, 3
+	li $v0, 4
 	la $a0, Ship3x1
 	syscall
 	
@@ -360,7 +377,7 @@ Player1_Input:
 	
 	
 Player2_Input:
-	li $a3, 0
+	li $t9, 2
 	
 	li $v0, 4
 	la $a0, player2_input
@@ -442,15 +459,57 @@ Player2_Input:
 	li $t8, 2
 	jal Ship_Update
 	
-	
+	j Start
 #-------------------------------#
 
 #-------------------------------#
 
 #------------GAMELOOP-----------#
+
+check_win:
+	beq $t9,1, load_player_1
+	la $s0, MAP2
+	load_player_1:
+	la $s0, MAP
+	
+	li $t1, 49
+	li $s1, 0
+	check_loop:
+	beqz $t1, end_check_win
+	sll $t2, $s1, 2
+	add $t3, $t2, $s0
+	
+	lw $t4, 0($t3)
+	beq $t4, 1, end_check_win
+	
+	addi $s1, $s1, 1
+	j check_loop
+	end_check_win:
+	jr $ra
+
+
+
+
+Start:
+	li $v0, 4
+	la $a0, GameStart_msg
+	syscall
+	
 Gameloop:
+	#player 1 turn
+	
+	
+	#check win p1
+	
+	#player 2 turn
+	
 
+	#check win p2
+	
+	j Gameloop
 
+Player1_win:
+	li $v0, 4
 
 #-------------------------------#
 
