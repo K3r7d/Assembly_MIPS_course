@@ -113,7 +113,7 @@ play:
 	P2_win: .asciiz "Player 2 win!!!\n"
 	P1_attack: .asciiz "Player 1 turn to attack\n"
 	P2_attack: .asciiz "Player 2 turn to attack\n"
-	HIT_MSG: .asciiz "HIT!\n"
+	HIT_MSG: .asciiz "  HIT!\n"
 	attack_choose_msg: .asciiz "Please input a point(x,y) to attack:"
 	attack_buffer: .space 10
 	error_point: .asciiz "Invalid point, please input again\n"
@@ -501,7 +501,7 @@ check_win:
 	jr $ra
 	
 	win_:
-	beq $t9, 1, Player1_win
+	beq $t9, 2, Player1_win
 	j Player2_win
 
 
@@ -519,12 +519,16 @@ attack:
 	
 	beq $t9,1, load_player_2
 	la $s0, MAP
+	j access__
 	load_player_2:
 	la $s0, MAP2
-
+	
+	access__:
 	mul $s3, $t1, 7
 	add $s3, $s3, $t2
 	mul $s3, $s3, 4
+	
+	add $s3, $s3, $s0
 	
 	lw $s5, 0($s3)
 	beq $s5, 0, end_atk
@@ -574,6 +578,14 @@ Gameloop:
 	li $v0, 4
 	la $a0, P2_attack
 	syscall
+	
+	li $v0, 8
+	la $a0, attack_buffer
+	li $a1, 4
+	syscall
+	
+	jal attack 
+	
 	#check win p2
 	li $t9, 1
 	jal check_win
