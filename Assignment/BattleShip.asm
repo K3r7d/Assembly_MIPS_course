@@ -104,14 +104,23 @@ play:
 	#NOTE
 	#s0 is use for MAP
 	#t8: Size of Ship
+	#t9: Player flag
 	
 	#Gameloop
 	
 	GameStart_msg: .asciiz "-----------------------------GAME-START-----------------------------\n"
-	P1_win: .asciiz "Player 1 win!!!"
-	P2_win: .asciiz "Player 2 win!!!"
+	P1_win: .asciiz "Player 1 win!!!\n"
+	P2_win: .asciiz "Player 2 win!!!\n"
+	P1_attack: .asciiz "Player 1 turn to attack\n"
+	P2_attack: .asciiz "Player 2 turn to attack\n"
+	HIT_MSG: .asciiz "HIT!\n"
+	attack_choose_msg: .asciiz "Please input a point(x,y) to attack:"
+	attack_buffer: .space 10
+	error_point: .asciiz "Invalid point, please input again\n"
 	
 	
+	#endgame_msg
+	ENDGAME: .asciiz"THE END"
 .text
 
 #-------------------------------#
@@ -174,9 +183,10 @@ Ship_Update:
 	#load player map
 	beq $t9,1, load_player1
 	la $s0, MAP2
+	j split
 	load_player1:
 	la $s0, MAP
-
+	split:
 	#split string
 	lb $t1, 0($a0) 
 	subi $t1, $t1, '0'
@@ -240,8 +250,8 @@ Ship_Update:
 	
 	add $s5, $s3, $s0
 	
-	beq $t5, 1,Column
-Row:#  T2 = T4
+	beq $t5, 1 ,Column
+Row:
 	beqz $t8, end_update_map
 	lw $s6, 0($s5)
 	bnez $s6, error
@@ -250,10 +260,10 @@ Row:#  T2 = T4
 	slt $s2, $t1, $t3
 	beqz $s2, Row_Left
 	Row_Right:
-	addi $s5, $s5, 4
+	addi $s5, $s5, 28
 	j Continue_Row_Loop
 	Row_Left:
-	subi $s5, $s5, 4
+	subi $s5, $s5, 28
 	Continue_Row_Loop:
 	subi $t8, $t8, 1
 	j Row
@@ -266,10 +276,10 @@ Column:
 	slt $s2, $t2, $t4
 	beqz $s2, Column_up
 	Column_up:
-	addi $s5, $s5, 28
+	addi $s5, $s5, 4
 	j Continue_Column_Loop
 	Column_down:
-	subi $s5, $s5, 28
+	subi $s5, $s5, 4
 	Continue_Column_Loop:
 	subi $t8, $t8, 1
 	j Column
@@ -469,13 +479,15 @@ Player2_Input:
 check_win:
 	beq $t9,1, load_player_1
 	la $s0, MAP2
+	j initial_check
 	load_player_1:
 	la $s0, MAP
 	
+	initial_check:
 	li $t1, 49
 	li $s1, 0
 	check_loop:
-	beqz $t1, end_check_win
+	beqz $t1, win_
 	sll $t2, $s1, 2
 	add $t3, $t2, $s0
 	
@@ -483,12 +495,56 @@ check_win:
 	beq $t4, 1, end_check_win
 	
 	addi $s1, $s1, 1
+	subi $t1, $t1, 1
 	j check_loop
 	end_check_win:
 	jr $ra
+	
+	win_:
+	beq $t9, 1, Player1_win
+	j Player2_win
 
 
+attack: 
+	lb $t1, 0($a0) 
+	subi $t1, $t1, '0'
+	add $a0, $a0, 2
+	lb $t2, 0($a0)
+	subi $t2, $t2, '0'
+	
+	ble $t1, -1, error_atk
+	ble $t2, -1, error_atk
+	bge $t1, 7, error_atk
+	bge $t2, 7, error_atk
+	
+	beq $t9,1, load_player_2
+	la $s0, MAP
+	load_player_2:
+	la $s0, MAP2
 
+	mul $s3, $t1, 7
+	add $s3, $s3, $t2
+	mul $s3, $s3, 4
+	
+	lw $s5, 0($s3)
+	beq $s5, 0, end_atk
+	subi $s5, $s5, 1
+	sw $s5, 0($s3)
+	#HIT
+	li $v0, 4
+	la $a0, HIT_MSG
+	syscall
+	
+	end_atk:
+	jr $ra
+	
+	error_atk:
+	li $v0, 4
+	la $a0, error_point
+	syscall
+	
+	subi $ra ,$ra, 24
+	jr $ra
 
 Start:
 	li $v0, 4
@@ -497,19 +553,44 @@ Start:
 	
 Gameloop:
 	#player 1 turn
+	li $t9, 1
 	
+	li $v0, 4
+	la $a0, P1_attack
+	syscall
 	
+	li $v0, 8
+	la $a0, attack_buffer
+	li $a1, 4
+	syscall
+	
+	jal attack 
 	#check win p1
 	
-	#player 2 turn
+	li $t9, 2
+	jal check_win
 	
-
+	#player 2 turn
+	li $v0, 4
+	la $a0, P2_attack
+	syscall
 	#check win p2
+	li $t9, 1
+	jal check_win
 	
 	j Gameloop
 
 Player1_win:
 	li $v0, 4
+	la $a0, P1_win
+	syscall
+	j exit
+	
+Player2_win: 
+	li $v0, 4
+	la $a0, P2_win
+	syscall
+	j exit
 
 #-------------------------------#
 
@@ -529,6 +610,10 @@ Player1_win:
 #-----------------------------------------EXIT----------------------------------------------#
 #-------------------------------------------------------------------------------------------#
 exit:
+	li $v0, 4
+	la $a0, ENDGAME
+	syscall
+	
 	li $v0, 10
 	syscall
 #-------------------------------------------------------------------------------------------#
