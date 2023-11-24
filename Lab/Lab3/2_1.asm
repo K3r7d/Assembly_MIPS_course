@@ -8,6 +8,11 @@
 	Input_C: .asciiz "input c: "
 	Invalid_input: .asciiz "Invalid input!\n"
 	
+	space: .asciiz " "
+	
+	metric_msg:.asciiz"Please input metric: "
+	metric: .space 100
+	
 	Volume_msg: .asciiz "Volume: "
 	ans: .asciiz "Surface Area: "
 	newline: .asciiz "\n"
@@ -17,6 +22,16 @@
 	one_on_three: .float 0.3333
 	four_on_three: .float 1.3333
 .text
+
+	li $v0, 4
+	la $a0, metric_msg
+	syscall
+	
+	li $v0, 8
+	li $a1, 100
+	la $a0, metric
+	syscall 
+	
 	li $v0, 4
 	la $a0, msg
 	syscall
@@ -251,6 +266,14 @@ answer_V:
 	
 	li $v0,2 
 	syscall
+	
+	li $v0, 4
+	la $a0 ,space
+	syscall
+	
+	li $v0, 4
+	la $a0, metric
+	syscall 
 	
 	j exit
 	
@@ -489,6 +512,14 @@ answer:
 	
 	li $v0,2 
 	syscall
+	
+	li $v0, 4
+	la $a0 ,space
+	syscall
+	
+	li $v0, 4
+	la $a0, metric
+	syscall 
 exit:
 	li $v0, 10
 	syscall
