@@ -117,8 +117,9 @@ play:
 	attack_choose_msg: .asciiz "Please input a point(x,y) to attack:"
 	attack_buffer: .space 10
 	error_point: .asciiz "Invalid point, please input again\n"
+	ROUND: .asciiz "ROUND "
 	
-	
+	fout: .asciiz "move.txt"
 	#endgame_msg
 	ENDGAME: .asciiz"THE END"
 .text
@@ -203,6 +204,17 @@ Ship_Update:
 
 	
 	#handle error
+	subi $a0, $a0, 1
+	lb $t5, 0($a0)
+	bne $t5, 32, error
+	subi $a0, $a0, 2
+	lb $t5, 0($a0)
+	bne $t5, 32, error
+	subi $a0, $a0, 2
+	lb $t5, 0($a0)
+	bne $t5, 32, error
+	
+	
 	ble $t1, -1, error
 	ble $t2, -1, error
 	ble $t3, -1, error
@@ -217,6 +229,8 @@ Ship_Update:
 	seq $t6, $t2, $t4
 	xor $t7, $t5, $t6
 	beqz $t7, error
+	
+	
 	
 	#size check
 	
@@ -554,9 +568,21 @@ Start:
 	li $v0, 4
 	la $a0, GameStart_msg
 	syscall
-	
+	li $s7, 1
 Gameloop:
 	#player 1 turn
+	li $v0, 4
+	la $a0, ROUND
+	syscall
+	
+	li $v0, 1
+	move $a0, $s7
+	syscall
+	
+	li $v0, 4
+	la $a0, newline
+	syscall
+
 	li $t9, 1
 	
 	li $v0, 4
@@ -590,6 +616,7 @@ Gameloop:
 	li $t9, 1
 	jal check_win
 	
+	addi $s7, $s7, 1
 	j Gameloop
 
 Player1_win:
