@@ -4,13 +4,12 @@
 #-------------------------------------------------------------------------------------------#
 #-------------------------------------------------------------------------------------------#
 .data
-	    cmt:.asciiz "--------------------------------------------------------------------"
-	    Menu:.asciiz"                1.Play                      2.Exit"
-	choose: .asciiz "Choose: "
-	Welcome:.asciiz "-------------------WELCOME TO BATTLESHIP GAME-----------------------"
-	newline: .asciiz"\n"
-	
-  invalid_input:.asciiz "Invalid input, please input again\n"
+	    cmt:	.asciiz "--------------------------------------------------------------------"
+	    Menu:	.asciiz"                1.Play                      2.Exit"
+	choose: 	.asciiz "Choose: "
+	Welcome:	.asciiz "-------------------WELCOME TO BATTLESHIP GAME-----------------------"
+	newline: 	.asciiz"\n"	
+  invalid_input:	.asciiz "Invalid input, please input again\n"
 		
 	
 .text
@@ -59,7 +58,7 @@ Choose___:
 	move $t0, $v0
 	
 	beq $t0, 1, play
-	beq $t0, 2, exit
+	beq $t0, 2, end_
 	
 	li $v0, 4
 	la $a0, invalid_input
@@ -81,47 +80,39 @@ play:
 
 
 .data
-	InputRule:.asciiz "Welcome to BATTLESHIP GAME.\nNow, each player have to input their boat by the syntax below\n\"Row_Boat Column_Boat Row_stern Column_stern\"\nExample:\"1 4 2 4\""
+	InputRule:		.asciiz "Welcome to BATTLESHIP GAME.\nNow, each player have to input their boat by the syntax below\n\"Row_Boat Column_Boat Row_stern Column_stern\"\nExample:\"1 4 2 4\""
+	player1_input:		.asciiz"Player 1 Turn\n"
+	player2_input:		.asciiz"Player 2 Turn\n"
+	EnterToContinue: 	.asciiz "Enter to Continue...\n"
+	NumberofShipsPrompt: 	.asciiz "You will have 3 2x1, 2 3x1 and 1 4x1 ships\n"
+	Ship4x1: 		.asciiz"4x1 Ship: "
+	Ship3x1: 		.asciiz"3x1 Ship: "
+	Ship2x1: 		.asciiz"2x1 Ship: "
 	
-	player1_input:.asciiz"Player 1 Turn\n"
-	player2_input:.asciiz"Player 2 Turn\n"
-	
-	EnterToContinue: .asciiz "Enter to Continue...\n"
-	NumberofShipsPrompt: .asciiz "You will have 3 2x1, 2 3x1 and 1 4x1 ships\n"
-	
-	Ship4x1: .asciiz"4x1 Ship: "
-	Ship3x1: .asciiz"3x1 Ship: "
-	Ship2x1: .asciiz"2x1 Ship: "
-	
-	tempString: .space 9
-	
-	INVALID_SHIP: .asciiz "\nInvalid ship input, please input again.\n"
+	tempString: 		.space 9	
+	INVALID_SHIP: 		.asciiz "\nInvalid ship input, please input again.\n"
 	
 	#____MAP____#
-	MAP: .word 0:49
-	MAP2: .word 0:49
-	
+	MAP: 			.word 0:49
+	MAP2: 			.word 0:49
 	#NOTE
 	#s0 is use for MAP
 	#t8: Size of Ship
 	#t9: Player flag
-	
 	#Gameloop
-	
-	GameStart_msg: .asciiz "-----------------------------GAME-START-----------------------------\n"
-	P1_win: .asciiz "Player 1 win!!!\n"
-	P2_win: .asciiz "Player 2 win!!!\n"
-	P1_attack: .asciiz "Player 1 turn to attack\n"
-	P2_attack: .asciiz "Player 2 turn to attack\n"
-	HIT_MSG: .asciiz "  HIT!\n"
-	attack_choose_msg: .asciiz "Please input a point(x,y) to attack:"
-	attack_buffer: .space 10
-	error_point: .asciiz "Invalid point, please input again\n"
-	ROUND: .asciiz "ROUND "
-	
-	fout: .asciiz "move.txt"
-	#endgame_msg
-	ENDGAME: .asciiz"THE END"
+	GameStart_msg: 		.asciiz "-----------------------------GAME-START-----------------------------\n"
+	P1_win: 		.asciiz "Player 1 win!!!\n"
+	P2_win: 		.asciiz "Player 2 win!!!\n"
+	P1_attack: 		.asciiz "Player 1 turn to attack\n"
+	P2_attack: 		.asciiz "Player 2 turn to attack\n"
+	HIT_MSG: 		.asciiz "  HIT!\n"
+	attack_choose_msg: 	.asciiz "Please input a point(x,y) to attack:"
+	attack_buffer: 		.space 10
+	error_point: 		.asciiz "Invalid point, please input again\n"
+	ROUND: 			.asciiz "ROUND "
+	fout: 			.asciiz "move.txt"
+	ENDGAME: 		.asciiz"THE GAME IS END!"
+	PLAYAGAIN:		.asciiz "Do you want to play again: 1.Yes 2.No \n"
 .text
 
 #-------------------------------#
@@ -554,6 +545,9 @@ attack:
 	syscall
 	
 	end_atk:
+	li $v0, 4
+	la $a0, newline
+	syscall
 	jr $ra
 	
 	error_atk:
@@ -572,6 +566,14 @@ Start:
 Gameloop:
 	#player 1 turn
 	li $v0, 4
+	la $a0, cmt
+	syscall
+	
+	li $v0, 4
+	la $a0, newline
+	syscall
+	
+	li $v0, 4
 	la $a0, ROUND
 	syscall
 	
@@ -587,6 +589,10 @@ Gameloop:
 	
 	li $v0, 4
 	la $a0, P1_attack
+	syscall
+	
+	li $v0, 4
+	la $a0, attack_choose_msg
 	syscall
 	
 	li $v0, 8
@@ -605,6 +611,10 @@ Gameloop:
 	la $a0, P2_attack
 	syscall
 	
+	li $v0, 4
+	la $a0, attack_choose_msg
+	syscall
+	
 	li $v0, 8
 	la $a0, attack_buffer
 	li $a1, 4
@@ -621,11 +631,18 @@ Gameloop:
 
 Player1_win:
 	li $v0, 4
+	la $a0, newline
+	syscall
+	li $v0, 4
 	la $a0, P1_win
 	syscall
 	j exit
 	
 Player2_win: 
+	li $v0, 4
+	la $a0, newline
+	syscall
+	
 	li $v0, 4
 	la $a0, P2_win
 	syscall
@@ -652,6 +669,15 @@ exit:
 	li $v0, 4
 	la $a0, ENDGAME
 	syscall
+	
+	li $v0, 4
+	la $a0, PLAYAGAIN
+	syscall
+	
+	li $v0, 5
+	syscall
+	beq $v0, 1, Player1_Input
+end_:
 	
 	li $v0, 10
 	syscall
