@@ -106,13 +106,14 @@ play:
 	P1_attack: 		.asciiz "Player 1 turn to attack\n"
 	P2_attack: 		.asciiz "Player 2 turn to attack\n"
 	HIT_MSG: 		.asciiz "  HIT!\n"
-	attack_choose_msg: 	.asciiz "Please input a point(x,y) to attack:"
+	attack_choose_msg: 	.asciiz "Please input a point to attack \"x y\":"
 	attack_buffer: 		.space 10
-	error_point: 		.asciiz "Invalid point, please input again\n"
+	error_point: 		.asciiz "\nInvalid point, please input again\n"
 	ROUND: 			.asciiz "ROUND "
 	fout: 			.asciiz "move.txt"
-	ENDGAME: 		.asciiz"THE GAME IS END!"
+	ENDGAME: 		.asciiz"THE GAME IS END!\n"
 	PLAYAGAIN:		.asciiz "Do you want to play again: 1.Yes 2.No \n"
+	Thankyou_msg:		.asciiz "Thanks for playing <3"
 .text
 
 #-------------------------------#
@@ -553,9 +554,9 @@ attack:
 	error_atk:
 	li $v0, 4
 	la $a0, error_point
-	syscall
+	syscall 
 	
-	subi $ra ,$ra, 24
+	subi $ra ,$ra, 40
 	jr $ra
 
 Start:
@@ -674,10 +675,17 @@ exit:
 	la $a0, PLAYAGAIN
 	syscall
 	
+	li $v0, 4
+	la $a0, choose
+	syscall
+	
 	li $v0, 5
 	syscall
 	beq $v0, 1, Player1_Input
 end_:
+	li $v0, 4
+	la $a0, Thankyou_msg
+	syscall
 	
 	li $v0, 10
 	syscall
