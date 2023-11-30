@@ -4,18 +4,48 @@
 #-------------------------------------------------------------------------------------------#
 #-------------------------------------------------------------------------------------------#
 .data
-	    cmt:	.asciiz "--------------------------------------------------------------------"
-	    Menu:	.asciiz"                1.Play                      2.Exit"
+	    cmt:	.asciiz "-------------------------------------------------------------------------------------------------------"
+	    Menu:	.asciiz"                               1.Play                          2.Exit"
 	choose: 	.asciiz "Choose: "
-	Welcome:	.asciiz "-------------------WELCOME TO BATTLESHIP GAME-----------------------"
+	Welcome:	.asciiz "--------------------------------------WELCOME TO BATTLESHIP GAME---------------------------------------"
 	newline: 	.asciiz"\n"	
-  invalid_input:	.asciiz "Invalid input, please input again\n"
-		
-	
+  invalid_input:	.asciiz "\nInvalid input, please input again\n"
+a:			.asciiz" ______     ______     ______   ______   __         ______     ______     __  __     __     ______ \n"
+b:			.asciiz"/\\  == \\   /\\  __ \\   /\\__  _\\ /\\__  _\\ /\\ \\       /\\  ___\\   /\\  ___\\   /\\ \\_\\ \\   /\\ \\   /\\  == \\\n"
+
+c:			.asciiz"\\ \\  __<   \\ \\  __ \\  \\/_/\\ \\/ \\/_/\\ \\/ \\ \\ \\____  \\ \\  __\\   \\ \\___  \\  \\ \\  __ \\  \\ \\ \\  \\ \\  _-/\n"
+
+d:			.asciiz" \\ \\_____\\  \\ \\_\\ \\_\\    \\ \\_\\    \\ \\_\\  \\ \\_____\\  \\ \\_____\\  \\/\\_____\\  \\ \\_\\ \\_\\  \\ \\_\\  \\ \\_\\  \n"
+
+e:			.asciiz"  \\/_____/   \\/_/\\/_/     \\/_/     \\/_/   \\/_____/   \\/_____/   \\/_____/   \\/_/\\/_/   \\/_/   \\/_/  	"
+	choose_buffer: 	.space 2
 .text
 
 menu__:
 	
+	li $v0, 4
+	la $a0, a
+	syscall
+	
+	li $v0, 4
+	la $a0, b
+	syscall
+	
+	li $v0, 4
+	la $a0, c
+	syscall
+	
+	li $v0, 4
+	la $a0, d
+	syscall
+	
+	li $v0, 4
+	la $a0, e
+	syscall
+
+	li $v0, 4
+	la $a0, newline
+	syscall
 
 	li $v0, 4
 	la $a0, cmt
@@ -53,12 +83,19 @@ Choose___:
 	la $a0, choose
 	syscall
 	
-	li $v0, 5
+	li $v0, 8
+	la $a0, choose_buffer
+	li $a1, 2
 	syscall 
-	move $t0, $v0
+	move $t0, $a0
+	lb $t1, 0($t0)
 	
-	beq $t0, 1, play
-	beq $t0, 2, end_
+	li $v0, 4
+	la $a0, newline
+	syscall
+	
+	beq $t1, 49, play
+	beq $t1, 50, end_
 	
 	li $v0, 4
 	la $a0, invalid_input
@@ -100,7 +137,7 @@ play:
 	#t8: Size of Ship
 	#t9: Player flag
 	#Gameloop
-	GameStart_msg: 		.asciiz "-----------------------------GAME-START-----------------------------\n"
+	GameStart_msg: 		.asciiz "------------------------------------------------GAME-START----------------------------------------------\n"
 	P1_win: 		.asciiz "Player 1 win!!!\n"
 	P2_win: 		.asciiz "Player 2 win!!!\n"
 	P1_attack: 		.asciiz "Player 1 turn to attack\n"
