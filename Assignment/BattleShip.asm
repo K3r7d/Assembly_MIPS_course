@@ -317,7 +317,7 @@ Column:
 	addi $s6, $zero, 1
 	sw $s6,0($s5)
 	slt $s2, $t2, $t4
-	beqz $s2, Column_up
+	beqz $s2, Column_down
 	Column_up:
 	addi $s5, $s5, 4
 	j Continue_Column_Loop
@@ -554,6 +554,10 @@ attack:
 	add $a0, $a0, 2
 	lb $t2, 0($a0)
 	subi $t2, $t2, '0'
+
+	subi $a0, $a0,1
+	lb $t3, 0($a0)
+	bne $t3, 32, error_atk 
 	
 	ble $t1, -1, error_atk
 	ble $t2, -1, error_atk
@@ -601,6 +605,7 @@ Start:
 	la $a0, GameStart_msg
 	syscall
 	li $s7, 1
+	
 Gameloop:
 	#player 1 turn
 	li $v0, 4
@@ -719,7 +724,8 @@ exit:
 	li $v0, 5
 	syscall
 	beq $v0, 1, Player1_Input
-end_:
+end_:	
+	
 	li $v0, 4
 	la $a0, Thankyou_msg
 	syscall
